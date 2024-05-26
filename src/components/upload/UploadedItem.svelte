@@ -1,11 +1,21 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
 
-    export let name: string;
-    export let size: number;
-    export let unit_size: string;
-    export let id: string|null = null;
     export let eye: boolean = false;
+    
+    // This is the model/dafiles object that will be passed to the component
+    export let id: string;
+    export let filename: string;
+    export let name: string;
+    export let type: string;
+    export let status: string;
+    export let uploadedAt: string;
+    export let uploadedBy: string;
+    export let weight: number;
+    export let weightUnitSize: string;
+    export let flops: number|null = null;
+    export let lastTrain: string|null = null;
+    export let deployed: boolean|null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -20,7 +30,7 @@
             <i class="fa-solid fa-file"></i>
         </button>
         <span class="text-white text-md font-medium mr-2">{name}</span>
-        <span class="text-gray-400 text-xs">{size} {unit_size}</span>
+        <span class="text-gray-400 text-xs">{weight} {weightUnitSize}</span>
     </div>
     <div class="flex items-center">
         {#if eye && id}
