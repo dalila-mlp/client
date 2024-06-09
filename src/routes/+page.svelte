@@ -28,8 +28,6 @@
             }
 
             const responseDatafile = await response.json();
-            console.log('Parsed response:', responseDatafile);
-
             models = responseDatafile;
         } catch (error) {
             console.error('Error fetching models:', error);
@@ -64,8 +62,6 @@
             }
 
             const responseDatafile = await response.json();
-            console.log('Parsed response:', responseDatafile);
-
             datafiles = responseDatafile;
         } catch (error) {
             console.error('Error fetching models:', error);

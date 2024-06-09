@@ -1,26 +1,29 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
 
-    export let options;
-    let selectedOption = options[0];
+    export let options: string[] = [];
+    export let value: string;
+
     let showDropdown = false;
 
     function toggleDropdown() {
         showDropdown = !showDropdown;
     }
 
-    function selectOption(option) {
-        selectedOption = option;
+    function selectOption(option: string) {
+        value = option;
         showDropdown = false;
         dispatch('select', option);
     }
 
     onMount(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.dropdown-container')) showDropdown = false;
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!(event.target as HTMLElement).closest('.dropdown-container')) {
+                showDropdown = false;
+            }
         };
 
         document.addEventListener('click', handleClickOutside);
@@ -49,7 +52,7 @@
         type="button"
         on:click={toggleDropdown}
     >
-        {selectedOption}
+        {value}
         <svg class="absolute right-[21px] fill-current h-8 w-8 transform" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
         </svg>
@@ -58,9 +61,17 @@
         <div class="absolute right-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
             <ul class="text-gray-700" aria-labelledby="dropdownDefault">
                 {#each options as option}
-                    <li class="cursor-pointer px-4 py-2 hover:bg-gray-100 hover:rounded-md text-md" on:click={() => selectOption(option)}>{option}</li>
+                    <li class="cursor-pointer px-4 py-2 hover:bg-gray-100 hover:rounded-md text-md" on:click={() => selectOption(option)}>
+                        {option}
+                    </li>
                 {/each}
             </ul>
         </div>
     {/if}
 </div>
+
+<style>
+    .dropdown-container {
+        position: relative;
+    }
+</style>

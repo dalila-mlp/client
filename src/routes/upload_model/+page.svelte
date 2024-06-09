@@ -29,31 +29,83 @@
     ];
 
     interface Model {
+        filename: string;
+        id: string;
         name: string;
-        size: number;
-        unit_size: string;
+        type: string;
+        weight: number;
+        weightUnitSize: string;
+    };
+
+    let models: Model[] = [];
+    let selectedModel: string = modelOptions[0];
+    let selectedType: string = typeOptions[0];
+    let file: File | null = null;
+    let fileInput: HTMLInputElement | null = null;
+    
+    function handleFileChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+
+        if (input.files && input.files[0]) {
+            file = input.files[0];
+        }
     }
 
-    let models: Model[] = [
-        {
-            name: "CNN - LeNet-5",
-            size: 86,
-            unit_size: "kb",
-        },
-        {
-            name: "CNN - VGG-Net",
-            size: 452,
-            unit_size: "kb",
-        },
-        {
-            name: "RNN - LSTM",
-            size: 12,
-            unit_size: "kb",
-        },
-    ];
+    async function handleUpload() {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', selectedModel);
+        formData.append('type', selectedType);
 
-    function removeModel(modelName: string) {
-        models = models.filter((model) => model.name !== modelName);
+        try {
+            const response = await fetch('http://192.168.218.129/model/create', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload');
+            }
+
+            const result = await response.json();
+            models = [
+                ...models,
+                {
+                    filename: result.filename,
+                    id: result.id,
+                    name: result.name,
+                    type: result.type,
+                    weight: result.weight,
+                    weightUnitSize: result.weightUnitSize,
+                }
+            ];
+            
+            file = null;
+            selectedModel = modelOptions[0];
+            selectedType = typeOptions[0];
+
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function removeModel(id: string) {
+        try {
+            const response = await fetch(`http://192.168.218.129/model/${id}/delete`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete model');
+            }
+
+            models = models.filter((model) => model.id !== id);
+        } catch (error) {
+            console.error(error);
+        }
     }
 </script>
 
@@ -66,28 +118,50 @@
         <div class="flex flex-col items-center w-full mt-[21px]">
             <div class="flex flex-col items-center w-full">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Model</h2>
-                <SelectModel options={modelOptions}/>
+                <SelectModel bind:value={selectedModel} options={modelOptions}/>
             </div>
             <div class="flex flex-col items-center w-full mt-[13px]">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Type</h2>
-                <SelectModel options={typeOptions} />
+                <SelectModel bind:value={selectedType} options={typeOptions} />
             </div>
         </div>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-[55px] py-[13px] rounded-2xl mt-[34px] text-2xl">
-            Drag model here!
-        </button>
+        <div class="flex font-bold mt-[34px] text-white text-2xl">
+            <input
+              id="fileInput"
+              type="file"
+              accept=".py"
+              on:change={handleFileChange}
+              class="hidden"
+              bind:this={fileInput}
+            />
+            {#if file}
+                <UploadedItem {...{filename: file.name}} on:remove={() => {file = null; fileInput.value = '';}} />
+            {:else}
+                <label
+                    class="bg-blue-500 hover:bg-blue-700 cursor-pointer px-[55px] py-[13px] rounded-2xl"
+                    for="fileInput"
+                >
+                    Drag model here!
+                </label>
+            {/if}
+        </div>
+        {#if file && selectedModel && selectedType}
+            <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-[55px] py-[13px] rounded-2xl mt-[34px] text-2xl"
+                on:click={handleUpload}
+            >
+                Upload
+            </button>
+        {/if}
         {#if models.length > 0}
             <div class="relative flex flex-col w-3/4 mt-[34px]">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Just uploaded model(s)</h2>
                 <div class="relative flex flex-col gap-3">
-                    {#each models as model (model.name)}
-                        <UploadedItem {...model} on:remove={(e) => removeModel(e.detail)} />
+                    {#each models as model (model.id)}
+                        <UploadedItem {...model} on:remove={() => removeModel(model.id)} />
                     {/each}
                 </div>
             </div>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-[55px] py-[13px] rounded-2xl mt-[34px] text-2xl">
-                Upload!
-            </button>
         {/if}
     </div>
 </div>

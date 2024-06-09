@@ -2,20 +2,10 @@
     import { createEventDispatcher } from 'svelte';
 
     export let eye: boolean = false;
-    
-    // This is the model/dafiles object that will be passed to the component
-    export let id: string;
+    export let id: string|null = null;
     export let filename: string;
-    export let name: string;
-    export let type: string;
-    export let status: string;
-    export let uploadedAt: string;
-    export let uploadedBy: string;
-    export let weight: number;
-    export let weightUnitSize: string;
-    export let flops: number|null = null;
-    export let lastTrain: string|null = null;
-    export let deployed: boolean|null = null;
+    export let weight: number|null = null;
+    export let weightUnitSize: string|null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -29,8 +19,10 @@
         <button class="text-gray-400 hover:text-gray-300 mr-2">
             <i class="fa-solid fa-file"></i>
         </button>
-        <span class="text-white text-md font-medium mr-2">{name}</span>
-        <span class="text-gray-400 text-xs">{weight} {weightUnitSize}</span>
+        <span class="text-white text-md font-medium mr-2">{filename}</span>
+        {#if weight && weightUnitSize}
+            <span class="text-gray-400 text-xs">{weight} {weightUnitSize}</span>
+        {/if}
     </div>
     <div class="flex items-center">
         {#if eye && id}
