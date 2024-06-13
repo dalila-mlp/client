@@ -1,32 +1,20 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import { ToastContainer, FlatToast }  from "svelte-toasts";
     import SelectModel from "../../components/upload/SelectModel.svelte";
     import UploadedItem from "../../components/upload/UploadedItem.svelte";
+    import toast from "../../utils/Toast/default";
 
-    let modelOptions: Array<string> = [
-        "Convolutional neural network",
-        "Decision Tree",
-        "K-Nearest Neighbors",
-        "Long Short-Term Memory",
-        "Naive Bayes",
-        "Neural Network",
-        "Random Forest",
-        "Recurrent Neural Network",
-        "Support Vector Machine",
-        "XGBoost",
-    ];
+    let modelNames: Array<string> = [];
+    let modelTypes: Array<string> = [];
 
-    let typeOptions: Array<string> = [
-        "Anomaly Detection",
-        "Association Rule Learning",
-        "Classification",
-        "Clustering",
-        "Computer Vision",
-        "Deep Learning",
-        "Dimensionality Reduction",
-        "Natural Language Processing",
-        "Regression",
-        "Reinforcement Learning",
-    ];
+    onMount(async () => {
+        const namesResponse = await fetch('http://localhost/model/names');
+        modelNames = await namesResponse.json();
+
+        const typesResponse = await fetch('http://localhost/model/types');
+        modelTypes = await typesResponse.json();
+    });
 
     interface Model {
         filename: string;
@@ -38,8 +26,8 @@
     };
 
     let models: Model[] = [];
-    let selectedModel: string = modelOptions[0];
-    let selectedType: string = typeOptions[0];
+    let selectedModel: string = "Choose model name";
+    let selectedType: string = "Choose model type";
     let file: File | null = null;
     let fileInput: HTMLInputElement | null = null;
     
@@ -58,14 +46,16 @@
         formData.append('type', selectedType);
 
         try {
-            const response = await fetch('http://192.168.218.129/model/create', {
+            const response = await fetch('http://localhost/model/create', {
                 method: 'POST',
                 body: formData
             });
 
             if (!response.ok) {
-                throw new Error('Failed to upload');
+                throw new Error((await response.json()).message);
             }
+
+            toast('Model uploaded successfully!', 'success');
 
             const result = await response.json();
             models = [
@@ -81,35 +71,40 @@
             ];
             
             file = null;
-            selectedModel = modelOptions[0];
-            selectedType = typeOptions[0];
+            selectedModel = modelNames[0];
+            selectedType = modelTypes[0];
 
             if (fileInput) {
                 fileInput.value = '';
             }
         } catch (error) {
-            console.error(error);
+            toast(error.message, 'error');
         }
     }
 
     async function removeModel(id: string) {
         try {
-            const response = await fetch(`http://192.168.218.129/model/${id}/delete`, {
+            const response = await fetch(`http://localhost/model/${id}/delete`, {
                 method: 'DELETE'
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete model');
+                throw new Error((await response.json()).message);
             }
 
             models = models.filter((model) => model.id !== id);
         } catch (error) {
-            console.error(error);
+            toast(error.message, 'error');
         }
     }
 </script>
 
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
+    {#if typeof window !== 'undefined'}
+        <ToastContainer let:data={data}>
+            <FlatToast {data} />
+        </ToastContainer>
+    {/if}
     <div class="flex flex-col items-center justify-self-center w-1/2 bg-[#15223C] rounded-3xl py-[34px]">
         <div class="flex flex-col items-center">
             <h1 class="text-3xl font-medium">Upload your model</h1>
@@ -118,11 +113,11 @@
         <div class="flex flex-col items-center w-full mt-[21px]">
             <div class="flex flex-col items-center w-full">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Model</h2>
-                <SelectModel bind:value={selectedModel} options={modelOptions}/>
+                <SelectModel bind:value={selectedModel} options={modelNames}/>
             </div>
             <div class="flex flex-col items-center w-full mt-[13px]">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Type</h2>
-                <SelectModel bind:value={selectedType} options={typeOptions} />
+                <SelectModel bind:value={selectedType} options={modelTypes} />
             </div>
         </div>
         <div class="flex font-bold mt-[34px] text-white text-2xl">

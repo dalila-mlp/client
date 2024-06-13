@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { ToastContainer, FlatToast }  from "svelte-toasts";
     import UploadedItem from "../components/upload/UploadedItem.svelte";
+    import toast from "../utils/Toast/default";
 
     interface Model {
         id: string;
@@ -22,7 +24,7 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('http://192.168.218.129/models');
+            const response = await fetch('http://localhost/models');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -56,22 +58,35 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('http://192.168.218.129/datafiles');
+            const response = await fetch('http://localhost/datafiles');
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error((await response.json()).message);
             }
 
             const responseDatafile = await response.json();
             datafiles = responseDatafile;
         } catch (error) {
-            console.error('Error fetching models:', error);
+            toast(error.message, 'error');
         }
 
         datafiles_loaded = true;
     });
 
-    function removeModel(modelName: string) {
-        models = models.filter((model) => model.name !== modelName);
+    async function removeModel(id: string) {
+        try {
+            const response = await fetch(`http://localhost/model/${id}/delete`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error((await response.json()).message);
+            }
+
+            models = models.filter((model) => model.id !== id);
+        } catch (error) {
+            toast(error.message, 'error');
+        }
     }
 
     function removeDatafile(modelName: string) {
@@ -80,6 +95,11 @@
 </script>
 
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
+    {#if typeof window !== 'undefined'}
+        <ToastContainer let:data={data}>
+            <FlatToast {data} />
+        </ToastContainer>
+    {/if}
     <div class="flex flex-col items-center justify-self-center w-full bg-[#15223C] rounded-3xl py-[34px] h-[75vh]">
         <div class="flex items-start justify-between w-full px-[34px] gap-[55px]">
             <div class="w-1/2">
@@ -93,8 +113,8 @@
                 </div>
                 {#if models.length && models_loaded}
                     <div class="relative flex flex-col gap-[13px] mt-[21px] max-h-[calc(75vh-6rem)] overflow-auto pr-[21px]">
-                        {#each models as model}
-                            <UploadedItem {...model} eye={true} on:remove={(e) => removeModel(e.detail)} />
+                        {#each models as model (model.id)}
+                            <UploadedItem {...model} eye={true} on:remove={() => removeModel(model.id)} />
                         {/each}
                     </div>
                 {:else if !models_loaded}
