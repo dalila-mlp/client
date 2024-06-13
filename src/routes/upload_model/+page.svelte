@@ -46,10 +46,10 @@
         formData.append('type', selectedType);
 
         try {
-            const response = await fetch('http://localhost/model/create', {
-                method: 'POST',
-                body: formData
-            });
+            const response = await fetch(
+                'http://localhost/model/create',
+                {method: 'POST', body: formData},
+            );
 
             if (!response.ok) {
                 throw new Error((await response.json()).message);
@@ -84,9 +84,10 @@
 
     async function removeModel(id: string) {
         try {
-            const response = await fetch(`http://localhost/model/${id}/delete`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(
+                `http://localhost/model/${id}/delete`, 
+                {method: 'DELETE'},
+            );
 
             if (!response.ok) {
                 throw new Error((await response.json()).message);

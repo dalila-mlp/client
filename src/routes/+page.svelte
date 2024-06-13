@@ -10,7 +10,8 @@
         name: string;
         type: string;
         status: string;
-        uploadedAt: string;
+        createdAt: string;
+        updatedAt: string;
         uploadedBy: string;
         weight: number;
         weightUnitSize: string;
@@ -26,13 +27,13 @@
         try {
             const response = await fetch('http://localhost/models');
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error((await response.json()).message);
             }
 
             const responseDatafile = await response.json();
             models = responseDatafile;
         } catch (error) {
-            console.error('Error fetching models:', error);
+            toast(error.message, "error")
         }
 
         models_loaded = true;
@@ -41,16 +42,10 @@
     interface Datafile {
         id: string;
         filename: string;
-        name: string;
-        type: string;
-        status: string;
-        uploadedAt: string;
-        uploadedBy: string;
+        createdAt: string;
+        updatedAt: string;
         weight: number;
         weightUnitSize: string;
-        flops: number;
-        lastTrain: string;
-        deployed: boolean;
     }
 
     let datafiles: Datafile[] = [];
@@ -75,9 +70,10 @@
 
     async function removeModel(id: string) {
         try {
-            const response = await fetch(`http://localhost/model/${id}/delete`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(
+                `http://localhost/model/${id}/delete`,
+                {method: 'DELETE'},
+            );
 
             if (!response.ok) {
                 throw new Error((await response.json()).message);
@@ -89,8 +85,21 @@
         }
     }
 
-    function removeDatafile(modelName: string) {
-        datafiles = datafiles.filter((datafile) => datafile.name !== modelName);
+    async function removeDatafile(id: string) {
+        try {
+            const response = await fetch(
+                `http://localhost/datafile/${id}/delete`,
+                {method: 'DELETE'},
+            );
+
+            if (!response.ok) {
+                throw new Error((await response.json()).message);
+            }
+
+            datafiles = datafiles.filter((datafile) => datafile.id !== id);
+        } catch (error) {
+            toast(error.message, 'error');
+        }
     }
 </script>
 
@@ -134,8 +143,8 @@
                 </div>
                 {#if datafiles && datafiles_loaded}
                     <div class="relative flex flex-col gap-[13px] mt-[21px] max-h-[calc(75vh-6rem)] overflow-auto pr-[21px]">
-                        {#each datafiles as datafile}
-                            <UploadedItem {...datafile} eye={false} on:remove={(e) => removeDatafile(e.detail)} />
+                        {#each datafiles as datafile (datafile.id)}
+                            <UploadedItem {...datafile} eye={false} on:remove={() => removeDatafile(datafile.id)} />
                         {/each}
                     </div>
                 {:else if !datafiles_loaded}

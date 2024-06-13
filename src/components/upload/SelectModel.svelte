@@ -4,7 +4,7 @@
 
     const dispatch = createEventDispatcher();
 
-    export let options: string[] = [];
+    export let options: Array<string> = [];
     export let value: string;
 
     let showDropdown = false;
