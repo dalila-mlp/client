@@ -1,6 +1,7 @@
 <script lang="ts">
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import UploadedItem from "../../components/upload/UploadedItem.svelte";
+    import axios from "../../utils/Axios/axios";
     import toast from "../../utils/Toast/default";
 
     interface Data {
@@ -27,18 +28,11 @@
         formData.append('file', file);
 
         try {
-            const response = await fetch(
-                'http://localhost/datafile/create', 
-                {method: 'POST', body: formData},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.post('/datafile/create', formData);
+            if (response.status !== 201) throw new Error((await response.data).message);
             toast('Datfile uploaded successfully!', 'success');
+            const result = await response.data;
 
-            const result = await response.json();
             datafiles = [
                 ...datafiles,
                 {
@@ -50,10 +44,7 @@
             ];
             
             file = null;
-
-            if (fileInput) {
-                fileInput.value = '';
-            }
+            if (fileInput) fileInput.value = '';
         } catch (error) {
             toast(error.message, 'error');
         }
@@ -61,15 +52,8 @@
 
     async function removeDatafile(id: string) {
         try {
-            const response = await fetch(
-                `http://localhost/datafile/${id}/delete`,
-                {method: 'DELETE'},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.delete(`/datafile/${id}/delete`);
+            if (response.status !== 204) throw new Error((await response.data).message);
             datafiles = datafiles.filter((datafile) => datafile.id !== id);
         } catch (error) {
             toast(error.message, 'error');

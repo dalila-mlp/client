@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { ToastContainer, FlatToast }  from "svelte-toasts";
+    import axios from "../../../utils/Axios/axios";
     import toast from "../../../utils/Toast/default";
 
 	/** @type {import('./$types').PageData} */
@@ -48,12 +49,9 @@
 
 	onMount(async () => {
         try {
-            const response = await fetch(`http://localhost/model/${id}`);
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get(`/model/${id}`);
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             model = responseDatafile;
         } catch (error) {
             toast(error.message, "error")
@@ -64,12 +62,9 @@
 
 	async function fetchMetrics() {
 		try {
-            const response = await fetch(`http://localhost/model/${id}/${activeTransaction.id}/metrics`);
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get(`/model/${id}/${activeTransaction.id}/metrics`);
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             metrics = responseDatafile;
         } catch (error) {
             toast(error.message, "error")
@@ -80,12 +75,9 @@
 
 	onMount(async () => {
         try {
-            const response = await fetch(`http://localhost/model/${id}/transactions`);
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get(`/model/${id}/transactions`);
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             transactions = responseDatafile;
         } catch (error) {
             toast(error.message, "error")
@@ -93,7 +85,6 @@
 
         transactions_loaded = true;
 		activeTransaction = transactions.find(t => t.active);
-		
 		fetchMetrics();
     });
 
@@ -104,7 +95,6 @@
 			return transaction;
 		});
 		activeTransaction = transactions.find(t => t.active);
-
 		fetchMetrics();
 	}
 </script>

@@ -1,31 +1,63 @@
-<script>
+<script lang="ts">
+    import { getCookie } from '../middleware/auth';
+
     let svgUrl = '/dalila_logo_with_title--big.svg';
 </script>
 
 <header class="relative pt-[21px] px-[55px] flex items-center justify-between text-slate-700 font-semibold text-sm leading-6 dark:text-slate-200 z-50">
-    <a href="/">
-        <img src={svgUrl} alt="Logo Dalila."/>
-    </a>
+    {#if getCookie('token')}
+        <a href="/">
+            <img src={svgUrl} alt="Logo Dalila."/>
+        </a>
+    {:else}
+        <a href="#">
+            <img src={svgUrl} alt="Logo Dalila."/>
+        </a>
+    {/if}
     <div class="hidden md:flex items-center">
         <nav class="flex items-center">
             <ul class="flex items-center gap-x-8">
                 <li>
-                    <a href="/" class="hover:text-blue-500">Models</a>
+                    {#if getCookie('token')}
+                        <a href="/" class="hover:text-blue-500">Models</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Models</a>
+                    {/if}
                 </li>
                 <li>
-                    <a href="/upload_model" class="hover:text-blue-500">Upload model</a>
+                    {#if getCookie('token')}
+                        <a href="/upload_model" class="hover:text-blue-500">Upload model</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Upload model</a>
+                    {/if}
                 </li>
                 <li>
-                    <a href="/upload_data" class="hover:text-blue-500">Upload data</a>
+                    {#if getCookie('token')}
+                        <a href="/upload_data" class="hover:text-blue-500">Upload data</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Upload data</a>
+                    {/if}
                 </li>
                 <li>
-                    <a href="/train" class="hover:text-blue-500">Train model</a>
+                    {#if getCookie('token')}
+                        <a href="/train" class="hover:text-blue-500">Train model</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Train model</a>
+                    {/if}
                 </li>
                 <li>
-                    <a href="/deploy" class="hover:text-blue-500">Deploy</a>
+                    {#if getCookie('token')}
+                        <a href="/deploy" class="hover:text-blue-500">Deploy</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Deploy</a>
+                    {/if}
                 </li>
                 <li>
-                    <a href="/predict" class="hover:text-blue-500">Predict</a>
+                    {#if getCookie('token')}
+                        <a href="/predict" class="hover:text-blue-500">Predict</a>
+                    {:else}
+                        <a href="#" class="hover:text-blue-500">Predict</a>
+                    {/if}
                 </li>
             </ul>
         </nav>

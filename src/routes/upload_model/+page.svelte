@@ -3,17 +3,18 @@
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import SelectModel from "../../components/upload/SelectModel.svelte";
     import UploadedItem from "../../components/upload/UploadedItem.svelte";
+    import axios from "../../utils/Axios/axios";
     import toast from "../../utils/Toast/default";
 
     let modelNames: Array<string> = [];
     let modelTypes: Array<string> = [];
 
     onMount(async () => {
-        const namesResponse = await fetch('http://localhost/model/names');
-        modelNames = await namesResponse.json();
+        const namesResponse = await axios.get("/model/names");
+        modelNames = await namesResponse.data;
 
-        const typesResponse = await fetch('http://localhost/model/types');
-        modelTypes = await typesResponse.json();
+        const typesResponse = await axios.get("/model/types");
+        modelTypes = await typesResponse.data;
     });
 
     interface Model {
@@ -46,18 +47,11 @@
         formData.append('type', selectedType);
 
         try {
-            const response = await fetch(
-                'http://localhost/model/create',
-                {method: 'POST', body: formData},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.post('/model/create', formData);
+            if (response.status !== 201) throw new Error((await response.data).message);
             toast('Model uploaded successfully!', 'success');
+            const result = await response.data;
 
-            const result = await response.json();
             models = [
                 ...models,
                 {
@@ -73,10 +67,7 @@
             file = null;
             selectedModel = modelNames[0];
             selectedType = modelTypes[0];
-
-            if (fileInput) {
-                fileInput.value = '';
-            }
+            if (fileInput) fileInput.value = '';
         } catch (error) {
             toast(error.message, 'error');
         }
@@ -84,15 +75,8 @@
 
     async function removeModel(id: string) {
         try {
-            const response = await fetch(
-                `http://localhost/model/${id}/delete`, 
-                {method: 'DELETE'},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.delete(`/model/${id}/delete`);
+            if (response.status !== 204) throw new Error((await response.data).message);
             models = models.filter((model) => model.id !== id);
         } catch (error) {
             toast(error.message, 'error');

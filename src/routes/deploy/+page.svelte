@@ -3,6 +3,7 @@
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import SelectModel from "../../components/upload/SelectModel.svelte";
     import UploadedItem from "../../components/upload/UploadedItem.svelte";
+    import axios from "../../utils/Axios/axios";
     import toast from "../../utils/Toast/default";
 
     interface Model {
@@ -26,12 +27,9 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost/models');
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get('/models');
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             models = responseDatafile;
         } catch (error) {
             toast(error.message, "error")

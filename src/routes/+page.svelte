@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import UploadedItem from "../components/upload/UploadedItem.svelte";
+    import axios from "../utils/Axios/axios";
     import toast from "../utils/Toast/default";
 
     interface Model {
@@ -25,12 +26,9 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost/models');
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get("/models");
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             models = responseDatafile;
         } catch (error) {
             toast(error.message, "error")
@@ -53,13 +51,9 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('http://localhost/datafiles');
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
-            const responseDatafile = await response.json();
+            const response = await axios.get("/datafiles");
+            if(response.status !== 200) throw new Error((await response.data).message);
+            const responseDatafile = await response.data;
             datafiles = responseDatafile;
         } catch (error) {
             toast(error.message, 'error');
@@ -70,15 +64,8 @@
 
     async function removeModel(id: string) {
         try {
-            const response = await fetch(
-                `http://localhost/model/${id}/delete`,
-                {method: 'DELETE'},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.delete(`model/${id}/delete`);
+            if (response.status !== 204) throw new Error((await response.data).message);
             models = models.filter((model) => model.id !== id);
         } catch (error) {
             toast(error.message, 'error');
@@ -87,15 +74,8 @@
 
     async function removeDatafile(id: string) {
         try {
-            const response = await fetch(
-                `http://localhost/datafile/${id}/delete`,
-                {method: 'DELETE'},
-            );
-
-            if (!response.ok) {
-                throw new Error((await response.json()).message);
-            }
-
+            const response = await axios.delete(`datafile/${id}/delete`);
+            if (response.status !== 204) throw new Error((await response.data).message);
             datafiles = datafiles.filter((datafile) => datafile.id !== id);
         } catch (error) {
             toast(error.message, 'error');
@@ -141,7 +121,7 @@
                         </svg>
                     </a>
                 </div>
-                {#if datafiles && datafiles_loaded}
+                {#if datafiles.length && datafiles_loaded}
                     <div class="relative flex flex-col gap-[13px] mt-[21px] max-h-[calc(75vh-6rem)] overflow-auto pr-[21px]">
                         {#each datafiles as datafile (datafile.id)}
                             <UploadedItem {...datafile} eye={false} on:remove={() => removeDatafile(datafile.id)} />
