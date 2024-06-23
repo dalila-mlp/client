@@ -61,6 +61,11 @@
     }
 </script>
 
+<svelte:head>
+    <title>Upload your datafile - Dalila</title>
+    <meta name="description" content="Upload your datafile to our platform now!" />
+</svelte:head>
+
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>

@@ -74,6 +74,11 @@
     }
 </script>
 
+<svelte:head>
+    <title>Deploy - Dalila</title>
+    <meta name="description" content="Deploy your models in the cloud with Dalila!" />
+</svelte:head>
+
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>

@@ -29,6 +29,11 @@
     };
 </script>
 
+<svelte:head>
+    <title>Login - Dalila</title>
+    <meta name="description" content="Log on to the platform to access all our features!" />
+</svelte:head>
+
 <div class="relative flex items-center justify-center h-screen bg-[#15223C] text-white -mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>

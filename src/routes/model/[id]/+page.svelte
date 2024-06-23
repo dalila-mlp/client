@@ -101,6 +101,11 @@
 	}
 </script>
 
+<svelte:head>
+    <title>{!model_loaded ? "Fetching model" : (model ? (model?.filename ?? "Model") : "Unknown model")} - Dalila</title>
+    <meta name="description" content="Analyze your model's metrics and charts, easily launch training, predictions and deployment." />
+</svelte:head>
+
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
 	{#if typeof window !== 'undefined'}
 		<ToastContainer let:data={data}>

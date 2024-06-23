@@ -83,6 +83,11 @@
     }
 </script>
 
+<svelte:head>
+    <title>Homepage - Dalila</title>
+    <meta name="description" content="Dalila is a platform for benchmarking and monitoring artificial intelligence models, primarily designed for data scientists and ml engineers." />
+</svelte:head>
+
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>
@@ -139,16 +144,16 @@
 
 <style>
     ::-webkit-scrollbar {
-        width: 12px; /* largeur de la scrollbar */
+        width: 12px; /* scrollbar width. */
     }
 
     ::-webkit-scrollbar-track {
-        background: #1e293b; /* couleur de l'arrière-plan de la scrollbar */
+        background: #1e293b; /* scrollbar background color. */
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: #64748b; /* couleur de la poignée de la scrollbar */
-        border-radius: 20px; /* arrondi des angles de la poignée de la scrollbar */
-        border: 3px solid #1e293b; /* bordure et couleur séparant la poignée de la track */
+        background-color: #64748b; /* scrollbar handle color. */
+        border-radius: 20px; /* rounded scrollbar handle corners. */
+        border: 3px solid #1e293b; /* border and color separating the handle from the track. */
     }
 </style>

@@ -64,6 +64,11 @@
     let selectedDatafile: string = "Choose datafile";
 </script>
 
+<svelte:head>
+    <title>Predict - Dalila</title>
+    <meta name="description" content="Run a prediction on a specific model and datafile with our platform." />
+</svelte:head>
+
 <div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>
