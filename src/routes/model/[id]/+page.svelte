@@ -89,7 +89,9 @@
     });
 
 	function handleActivation(transactionId: string) {
-        metrics_loaded = false;
+        if (transactionId === activeTransaction?.id) return;
+
+		metrics_loaded = false;
 		transactions = transactions.map(transaction => {
 			transaction.active = transaction.id === transactionId ? !transaction.active : false;
 			return transaction;

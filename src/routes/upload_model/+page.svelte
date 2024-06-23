@@ -31,12 +31,30 @@
     let selectedType: string = "Choose model type";
     let file: File | null = null;
     let fileInput: HTMLInputElement | null = null;
-    
-    function handleFileChange(event: Event) {
+    let llm_operation: boolean = false;
+
+    async function handleFileChange(event: Event) {
+        llm_operation = true;
         const input = event.target as HTMLInputElement;
 
         if (input.files && input.files[0]) {
             file = input.files[0];
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await axios.post('/model/info', formData);
+            if (response.status !== 200) throw new Error((await response.data).message);
+            toast('Paremeters retrieved successfully!', 'success');
+            const result = await response.data;
+            selectedModel = result.model_name;
+            selectedType = result.model_type;
+        } catch (error) {
+            toast(error.message, 'error');
+        } finally {
+            llm_operation = false;
         }
     }
 
@@ -78,6 +96,8 @@
             const response = await axios.delete(`/model/${id}/delete`);
             if (response.status !== 204) throw new Error((await response.data).message);
             models = models.filter((model) => model.id !== id);
+            selectedModel = "Choose model name";
+            selectedType = "Choose model type";
         } catch (error) {
             toast(error.message, 'error');
         }
@@ -95,6 +115,11 @@
             <h1 class="text-3xl font-medium">Upload your model</h1>
             <span class="text-sm text-gray-500 font-bold">only .py extension is available</span>
         </div>
+        {#if llm_operation}
+            <div class="w-full bg-yellow-300 text-black text-center py-2 my-[13px]">
+                Parameters being determined by llm, please wait...
+            </div>
+        {/if}
         <div class="flex flex-col items-center w-full mt-[21px]">
             <div class="flex flex-col items-center w-full">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Model</h2>
