@@ -12,7 +12,8 @@ export const authToken = writable<string | null>(getCookie('token'));
 export function checkAuth() {
     let token: string | null = null;
     authToken.subscribe((value: string) => token = value);
-    !token && goto('/login');
+
+    return !!token;
 }
 
 export function login(token: string) {

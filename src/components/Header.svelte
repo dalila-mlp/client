@@ -1,64 +1,44 @@
 <script lang="ts">
-    import { getCookie } from '../middleware/auth';
+    import { goto } from "$app/navigation";
+    import { get } from 'svelte/store';
+    import { logout, authToken } from "../middleware/auth";
 
-    let svgUrl = '/dalila_logo_with_title--big.svg';
+    let loggedIn = get(authToken);
+    let svgUrl = "/dalila_logo_with_title--big.svg";
+    const handleNavigation = (path: string) => loggedIn ? goto(path) : goto("/login");
+    authToken.subscribe(value => {loggedIn = value !== null;});
 </script>
 
 <header class="relative pt-[21px] px-[55px] flex items-center justify-between text-slate-700 font-semibold text-sm leading-6 dark:text-slate-200 z-50">
-    {#if getCookie('token')}
-        <a href="/">
-            <img src={svgUrl} alt="Logo Dalila."/>
-        </a>
-    {:else}
-        <a href="#">
-            <img src={svgUrl} alt="Logo Dalila."/>
-        </a>
-    {/if}
+    <button on:click={() => handleNavigation("/")}>
+        <img src={svgUrl} alt="Logo Dalila."/>
+    </button>
     <div class="hidden md:flex items-center">
         <nav class="flex items-center">
             <ul class="flex items-center gap-x-8">
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/" class="hover:text-blue-500">Models</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Models</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/")} class="hover:text-blue-500">Models</button>
                 </li>
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/upload_model" class="hover:text-blue-500">Upload model</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Upload model</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/upload_model")} class="hover:text-blue-500">Upload model</button>
                 </li>
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/upload_data" class="hover:text-blue-500">Upload data</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Upload data</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/upload_data")} class="hover:text-blue-500">Upload data</button>
                 </li>
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/train" class="hover:text-blue-500">Train model</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Train model</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/train")} class="hover:text-blue-500">Train model</button>
                 </li>
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/deploy" class="hover:text-blue-500">Deploy</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Deploy</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/deploy")} class="hover:text-blue-500">Deploy</button>
                 </li>
                 <li>
-                    {#if getCookie('token')}
-                        <a href="/predict" class="hover:text-blue-500">Predict</a>
-                    {:else}
-                        <a href="#" class="hover:text-blue-500">Predict</a>
-                    {/if}
+                    <button on:click={() => handleNavigation("/predict")} class="hover:text-blue-500">Predict</button>
                 </li>
+                {#if loggedIn}
+                    <li>
+                        <button on:click={() => logout()} class="hover:text-blue-500">Logout</button>
+                    </li>
+                {/if}
             </ul>
         </nav>
         <div class="flex items-center border-l border-slate-500 ml-6 pl-6 dark:border-slate-700">
