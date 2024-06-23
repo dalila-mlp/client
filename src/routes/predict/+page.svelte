@@ -1,28 +1,18 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
+    import { get } from 'svelte/store';
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import SelectModel from "../../components/upload/SelectModel.svelte";
+    import { type Model, selectedModel } from '../../stores/model';
     import axios from "../../utils/Axios/axios";
     import toast from "../../utils/Toast/default";
 
-    interface Model {
-        id: string;
-        filename: string;
-        name: string;
-        type: string;
-        status: string;
-        createdAt: string;
-        updatedAt: string;
-        uploadedBy: string;
-        weight: number;
-        weightUnitSize: string;
-        flops: number;
-        lastTrain: string;
-        deployed: boolean;
-    }
-
     let models: Model[] = [];
     let models_loaded: boolean = false;
+    let datafiles: Datafile[] = [];
+    let datafiles_loaded: boolean = false;
+    let selectedModelValue: string = "Choose model";
+    let selectedDatafile: string = "Choose datafile";
 
     onMount(async () => {
         try {
@@ -35,6 +25,7 @@
         }
 
         models_loaded = true;
+        selectedModelValue = get(selectedModel) ?? "Choose model";
     });
 
     interface Datafile {
@@ -43,9 +34,6 @@
         weight: number;
         weightUnitSize: string;
     }
-
-    let datafiles: Datafile[] = [];
-    let datafiles_loaded: boolean = false;
 
     onMount(async () => {
         try {
@@ -60,8 +48,7 @@
         datafiles_loaded = true;
     });
 
-    let selectedModel: string = "Choose model";
-    let selectedDatafile: string = "Choose datafile";
+    onDestroy(() => selectedModel.set(null));
 </script>
 
 <svelte:head>
@@ -83,7 +70,7 @@
         <div class="flex flex-col items-center w-full mt-[21px]">
             <div class="flex flex-col items-center w-full">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Model</h2>
-                <SelectModel bind:value={selectedModel} options={models.map(model => model.filename)}/>
+                <SelectModel bind:value={selectedModelValue} options={models.map(model => model.filename)}/>
             </div>
             <div class="flex flex-col items-center w-full mt-[13px]">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Datafile</h2>

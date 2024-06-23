@@ -26,7 +26,7 @@
                     <button on:click={() => handleNavigation("/upload_data")} class="hover:text-blue-500">Upload data</button>
                 </li>
                 <li>
-                    <button on:click={() => handleNavigation("/train")} class="hover:text-blue-500">Train model</button>
+                    <button on:click={() => handleNavigation("/train")} class="hover:text-blue-500">Train</button>
                 </li>
                 <li>
                     <button on:click={() => handleNavigation("/deploy")} class="hover:text-blue-500">Deploy</button>

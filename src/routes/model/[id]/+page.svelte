@@ -1,6 +1,8 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { ToastContainer, FlatToast }  from "svelte-toasts";
+    import { selectedModel } from '../../../stores/model';
     import axios from "../../../utils/Axios/axios";
     import toast from "../../../utils/Toast/default";
 
@@ -99,6 +101,10 @@
 		activeTransaction = transactions.find(t => t.active);
 		fetchMetrics();
 	}
+
+	const handleTrain = () => model ? (selectedModel.set(model?.filename) || goto('/train')) : toast('No model selected', 'error');
+	const handleDeploy = () => model ? (selectedModel.set(model?.filename) || goto('/deploy')) : toast('No model selected', 'error');
+	const handlePredict = () => model ? (selectedModel.set(model?.filename) || goto('/predict')) : toast('No model selected', 'error');
 </script>
 
 <svelte:head>
@@ -132,8 +138,9 @@
 					<div><b>Last train:</b> {model.lastTrain}</div>
 					<div><b>Deployed:</b> {model.deployed}</div>
 					<div class="flex flex-col mt-6 gap-[5px]">
-						<button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Train</button>
-						<button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Deploy</button>
+						<button on:click={handleTrain} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Train</button>
+						<button on:click={handleDeploy} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Deploy</button>
+						<button on:click={handlePredict} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Predict</button>
 					</div>
 				</div>
 				<div>
