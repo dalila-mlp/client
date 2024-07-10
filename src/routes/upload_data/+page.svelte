@@ -75,13 +75,13 @@
     <div class="flex flex-col items-center justify-self-center w-1/2 bg-[#15223C] rounded-3xl py-[34px]">
         <div class="flex flex-col items-center">
             <h1 class="text-3xl font-medium">Upload your datafile</h1>
-            <span class="text-sm text-gray-500 font-bold">only .parquet extension is available</span>
+            <span class="text-sm text-gray-500 font-bold">only .csv extension is available</span>
         </div>
         <div class="flex font-bold mt-[34px] text-white text-2xl">
             <input
               id="fileInput"
               type="file"
-              accept=".parquet"
+              accept=".csv"
               on:change={handleFileChange}
               class="hidden"
               bind:this={fileInput}

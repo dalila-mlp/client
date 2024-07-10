@@ -128,11 +128,21 @@
         <div class="flex flex-col items-center w-full mt-[21px]">
             <div class="flex flex-col items-center w-full">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Model</h2>
-                <SelectModel bind:value={selectedModel} options={modelNames}/>
+                <SelectModel
+                    bind:value={selectedModel}
+                    bind:specificValue={selectedModel}
+                    options={modelNames.map(modelName => ({ id: modelName, filename: modelName }))}
+                    typeOption="model"
+                />
             </div>
             <div class="flex flex-col items-center w-full mt-[13px]">
                 <h2 class="w-3/4 text-lg font-medium mb-[5px]">Type</h2>
-                <SelectModel bind:value={selectedType} options={modelTypes} />
+                <SelectModel
+                    bind:value={selectedType}
+                    bind:specificValue={selectedType}
+                    options={modelTypes.map(modelType => ({ id: modelType, filename: modelType }))}
+                    typeOption="type"
+                />
             </div>
         </div>
         <div class="flex font-bold mt-[34px] text-white text-2xl">
