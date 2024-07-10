@@ -20,6 +20,10 @@
         f1Score: string;
     }
 
+    interface Owner {
+        email: string;
+    }
+
     interface Model {
         id: string;
         filename: string;
@@ -28,7 +32,7 @@
         status: string;
         createdAt: string;
         updatedAt: string;
-        uploadedBy: string;
+        owner: Owner;
         weight: number;
         weightUnitSize: string;
         flops: number;
@@ -155,12 +159,12 @@
                     <div><b>Type:</b> {model.type}</div>
                     <div><b>Status:</b> {model.status}</div>
                     <div><b>Uploaded at:</b> {model.createdAt}</div>
-                    <div><b>Uploaded by:</b> {model.uploadedBy}</div>
+                    <div><b>Uploaded by:</b> {model.owner.email}</div>
                     <div><b>Updated at:</b> {model.updatedAt}</div>
-                    <div><b>Weight:</b> {model.weight}</div>
+                    <div><b>Weight:</b> {model.weight}  {model.weightUnitSize}</div>
                     <div><b>Flops:</b> {model.flops}</div>
-                    <div><b>Last train:</b> {model.lastTrain}</div>
-                    <div><b>Deployed:</b> {model.deployed}</div>
+                    <div><b>Last train:</b> {model.lastTrain ?? "Never been trained"}</div>
+                    <div><b>Deployed:</b> {model.deployed ? "Yes" : "Not yet"}</div>
                     <div class="flex flex-col mt-6 gap-[5px]">
                         <button on:click={handleTrain} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Train</button>
                         <button on:click={handleDeploy} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Deploy</button>
