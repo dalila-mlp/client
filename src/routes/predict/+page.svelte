@@ -38,7 +38,7 @@
             if(response.status !== 200) throw new Error((await response.data).message);
             const responseDatafile = await response.data;
             models = responseDatafile;
-            modelsOptions = models.map(model => ({ id: model.id, filename: model.filename }));
+            modelsOptions = models.filter(m => m.deployed).map(model => ({ id: model.id, filename: model.filename }));
         } catch (error) {
             toast(error.message, "error")
         }

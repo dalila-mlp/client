@@ -29,9 +29,6 @@
                     <button on:click={() => handleNavigation("/train")} class="hover:text-blue-500">Train</button>
                 </li>
                 <li>
-                    <button on:click={() => handleNavigation("/deploy")} class="hover:text-blue-500">Deploy</button>
-                </li>
-                <li>
                     <button on:click={() => handleNavigation("/predict")} class="hover:text-blue-500">Predict</button>
                 </li>
                 {#if loggedIn}

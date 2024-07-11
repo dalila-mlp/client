@@ -88,8 +88,6 @@
 
             toast('Training ended successfully!', 'success');
             const result = await response.data;
-            console.log(result);
-
             goto(`/model/${result.model_id}`);
         } catch (error) {
             toast(error.message, 'error');
