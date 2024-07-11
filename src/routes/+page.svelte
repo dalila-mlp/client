@@ -88,7 +88,7 @@
     <meta name="description" content="Dalila is a platform for benchmarking and monitoring artificial intelligence models, primarily designed for data scientists and ml engineers." />
 </svelte:head>
 
-<div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
+<div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>
             <FlatToast {data} />

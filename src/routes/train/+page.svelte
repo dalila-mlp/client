@@ -38,6 +38,7 @@
     let selectedDatafile: string = "";
 
     let parameters: Parameter[] = [];
+    let parameterValues = {};
 
     let trainingFinished: boolean = false;
     let trainingStarted: boolean = false;
@@ -78,6 +79,10 @@
             if (response.status !== 200) throw new Error((await response.data).message);
             const responseData = await response.data;
             parameters = responseData;
+            parameterValues = {};
+            parameters.forEach(param => {
+                parameterValues[param.name] = param.default;
+            });
             console.log(parameters);
         } catch (error) {
             toast(error.message, 'error');
@@ -103,6 +108,7 @@
                     target_column: targetColumn,
                     features: features.split(',').map(f => f.trim()),
                     test_size: parseFloat(testSize),
+                    parameters: parameterValues
                 },
             );
 
@@ -120,13 +126,12 @@
     }
 </script>
 
-
 <svelte:head>
     <title>Train - Dalila</title>
     <meta name="description" content="Run training on a specific model and datafile with our platform." />
 </svelte:head>
 
-<div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
+<div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>
             <FlatToast {data} />
@@ -188,6 +193,37 @@
                     placeholder="Enter test size (e.g., 0.2)"
                 />
             </div>
+            {#each parameters as param}
+                <div class="flex flex-col items-center w-full mt-[13px]">
+                    <h2 class="w-3/4 text-lg font-medium">{param.name}</h2>
+                    {#if param.constraint}
+                        <span class="w-3/4 text-sm text-slate-400">valid value: {param.constraint}</span>
+                    {/if}
+                    <div class="w-3/4 h-[5px]"></div>
+                    {#if param.type === 'int' || param.type === 'float'}
+                        <input
+                            type="number"
+                            bind:value={parameterValues[param.name]}
+                            class="w-3/4 p-2 rounded text-black"
+                            placeholder={`Enter ${param.name}`}
+                            step={param.type === 'float' ? 'any' : '1'}
+                        />
+                    {:else if param.type === 'string'}
+                        <input
+                            type="text"
+                            bind:value={parameterValues[param.name]}
+                            class="w-3/4 p-2 rounded text-black"
+                            placeholder={`Enter ${param.name}`}
+                        />
+                    {:else if param.type === 'bool'}
+                        <input
+                            type="checkbox"
+                            bind:checked={parameterValues[param.name]}
+                            class="w-3/4 p-2 rounded text-black"
+                        />
+                    {/if}
+                </div>
+            {/each}
         </div>
         <button
             on:click={train}

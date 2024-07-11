@@ -66,7 +66,7 @@
     <meta name="description" content="Upload your datafile to our platform now!" />
 </svelte:head>
 
-<div class="relative grid items-center max-w-[1400px] mx-auto w-full text-sm sm:text-base min-h-screen -mt-[76px]">
+<div class="relative grid items-center max-w-[1400px] min-h-full mx-auto w-full text-sm sm:text-base mt-[76px]">
     {#if typeof window !== 'undefined'}
         <ToastContainer let:data={data}>
             <FlatToast {data} />
