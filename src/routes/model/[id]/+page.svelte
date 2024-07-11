@@ -4,9 +4,9 @@
     import { ToastContainer, FlatToast }  from "svelte-toasts";
     import { selectedModel } from '../../../stores/model';
     import axios from "../../../utils/Axios/axios";
+    import Lightbox from '../../../components/Lightbox.svelte';
     import toast from "../../../utils/Toast/default";
     import Carousel from 'svelte-carousel';
-    import Lightbox from '../../../components/Lightbox.svelte';
 
     /** @type {import('./$types').PageData} */
     export let data;
@@ -45,6 +45,7 @@
         id: string;
         action: string;
         active: boolean;
+        deployed: boolean;
     }
 
     let model: Model | null = null;
@@ -111,16 +112,17 @@
             const responseDatafile = await response.data;
             transactions = responseDatafile;
         } catch (error) {
-            toast(error.message, "error")
+            toast(error.message, "error");
+        } finally {
+            transactions_loaded = true;
+            activeTransaction = transactions.find(t => t.active);
         }
 
-        transactions_loaded = true;
-        activeTransaction = transactions.find(t => t.active);
         fetchMetrics();
         fetchPlots();
     });
 
-    function handleActivation(transactionId: string) {
+    const handleActivation = (transactionId: string) => {
         if (transactionId === activeTransaction?.id) return;
 
         metrics_loaded = false;
@@ -134,8 +136,28 @@
     }
 
     const handleTrain = () => model ? (selectedModel.set(model?.filename) || goto('/train')) : toast('No model selected', 'error');
-    const handleDeploy = () => model ? (selectedModel.set(model?.filename) || goto('/deploy')) : toast('No model selected', 'error');
     const handlePredict = () => model ? (selectedModel.set(model?.filename) || goto('/predict')) : toast('No model selected', 'error');
+
+    const handleDeploy = async () => {
+        try {
+            const response = await axios.post(
+                '/model/deploy',
+                {
+                    model_id: model?.id,
+                    transaction_id: activeTransaction?.id,
+                },
+            );
+
+            if(response.status !== 200) throw new Error((await response.data).message);
+
+            toast('Transaction deployed!', 'success');
+            transactions.map(t => {t.deployed = false});
+            transactions.map(t => t.id === activeTransaction?.id && (t.deployed = true));
+            transactions = [...transactions]
+        } catch (error) {
+            toast(error.message, 'error');
+        }
+    };
 
     const openLightbox = (image: string) => {
         currentImage = image;
@@ -170,13 +192,21 @@
                     <div><b>Uploaded by:</b> {model.owner.email}</div>
                     <div><b>Updated at:</b> {model.updatedAt}</div>
                     <div><b>Weight:</b> {model.weight}  {model.weightUnitSize}</div>
-                    <div><b>Flops:</b> {model.flops}</div>
                     <div><b>Last train:</b> {model.lastTrain ?? "Never been trained"}</div>
-                    <div><b>Deployed:</b> {model.deployed ? "Yes" : "Not yet"}</div>
+                    <div><b>Deployed:</b> {model.deployed ? ((transactions && transactions !== undefined) ? transactions.find(e => e.deployed === true).id : "Yes") : "Not yet"}</div>
                     <div class="flex flex-col mt-6 gap-[5px]">
-                        <button on:click={handleTrain} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Train</button>
-                        <button on:click={handleDeploy} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Deploy</button>
-                        <button on:click={handlePredict} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Predict</button>
+                        <button
+                            on:click={handleTrain}
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]"
+                        >
+                            {activeTransaction && activeTransaction.action === "train" ? "Retrain" : "Train"}
+                        </button>
+                        {#if activeTransaction && !activeTransaction.deployed && activeTransaction.action === "train"}
+                            <button on:click={handleDeploy} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Deploy</button>
+                        {/if}
+                        {#if activeTransaction && activeTransaction.deployed === true}
+                            <button on:click={handlePredict} class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-[50%]">Predict</button>
+                        {/if}    
                     </div>
                 </div>
                 <div>
@@ -219,7 +249,7 @@
                                         <i class="fa-solid fa-bolt"></i>
                                     </button>
                                     <span class="text-white text-md font-medium mr-[13px] text-[13px]">{transaction.id}</span>
-                                    <span class="text-gray-400 text-xs">{transaction.action}</span>
+                                    <span class="text-gray-400 text-xs">{transaction.deployed ? "deployed" : transaction.action}</span>
                                 </div>
                                 <div class="flex items-center">
                                     <button class="text-gray-400 hover:text-gray-300 mr-2" on:click={() => handleActivation(transaction.id)}>
@@ -239,7 +269,6 @@
             <div class="text-3xl font-bold">Fetching model in progress...</div>
         {/if}
     </div>
-
     {#if showLightbox}
         <Lightbox imageUrl={currentImage} show={showLightbox} onClose={() => showLightbox = false} />
     {/if}

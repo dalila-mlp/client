@@ -165,10 +165,13 @@
                 </label>
             {/if}
         </div>
-        {#if file && selectedModel && selectedType}
+        {#if file}
             <button
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-[55px] py-[13px] rounded-2xl mt-[34px] text-2xl"
                 on:click={handleUpload}
+                disabled={llm_operation || !selectedModel || !selectedType}
+                class:opacity-50={llm_operation || !selectedModel || !selectedType}
+                class:cursor-not-allowed={llm_operation || !selectedModel || !selectedType}
             >
                 Upload
             </button>

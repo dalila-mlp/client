@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { onMount, onDestroy } from "svelte";
     import { get } from 'svelte/store';
     import { ToastContainer, FlatToast }  from "svelte-toasts";
@@ -6,6 +7,13 @@
     import { type Model, selectedModel } from '../../stores/model';
     import axios from "../../utils/Axios/axios";
     import toast from "../../utils/Toast/default";
+
+    interface Datafile {
+        filename: string;
+        id: string;
+        weight: number;
+        weightUnitSize: string;
+    }
 
     interface Option {
         id: string;
@@ -17,7 +25,11 @@
     let models_loaded: boolean = false;
     let selectedModelValue: string = "";
     let displaySelectedModelValue: string | null = null;
+
+    let datafiles: Datafile[] = [];
+    let datafiles_loaded: boolean = false;
     let selectedDatafile: string = "";
+
     let trainingFinished: boolean = false;
     let trainingStarted: boolean = false;
 
@@ -27,25 +39,15 @@
             if(response.status !== 200) throw new Error((await response.data).message);
             const responseDatafile = await response.data;
             models = responseDatafile;
-            modelsOptions = models.map(model => ({ id: model.id, filename: model.filename }))
+            modelsOptions = models.map(model => ({ id: model.id, filename: model.filename }));
         } catch (error) {
             toast(error.message, "error")
         }
         
         models_loaded = true;
         displaySelectedModelValue = get(selectedModel);
-        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0].id
+        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0].id;
     });
-
-    interface Datafile {
-        filename: string;
-        id: string;
-        weight: number;
-        weightUnitSize: string;
-    }
-
-    let datafiles: Datafile[] = [];
-    let datafiles_loaded: boolean = false;
 
     onMount(async () => {
         try {
@@ -66,9 +68,9 @@
     let features: string = "";
     let testSize: string = "0.2";
 
-    const trainModel = async () => {
-        trainingStarted = true;
+    const train = async () => {
         trainingFinished = false;
+        trainingStarted = true;
 
         try {
             const response = await axios.post(
@@ -79,12 +81,16 @@
                     target_column: targetColumn,
                     features: features.split(',').map(f => f.trim()),
                     test_size: parseFloat(testSize),
-                }
+                },
             );
 
-            if(response.status !== 204) throw new Error((await response.data).message);
+            if(response.status !== 200) throw new Error((await response.data).message);
 
             toast('Training ended successfully!', 'success');
+            const result = await response.data;
+            console.log(result);
+
+            goto(`/model/${result.model_id}`);
         } catch (error) {
             toast(error.message, 'error');
         } finally {
@@ -93,6 +99,7 @@
         }
     }
 </script>
+
 
 <svelte:head>
     <title>Train - Dalila</title>
@@ -162,8 +169,11 @@
             </div>
         </div>
         <button
-            on:click={trainModel}
+            on:click={train}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold px-[55px] py-[13px] rounded-2xl mt-[34px] text-2xl"
+            disabled={trainingStarted && !trainingFinished}
+            class:opacity-50={trainingStarted && !trainingFinished}
+            class:cursor-not-allowed={trainingStarted && !trainingFinished}
         >
             Train!
         </button>
