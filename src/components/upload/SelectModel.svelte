@@ -26,6 +26,7 @@
         value = option.id;
         showDropdown = false;
         dispatch('select', option.id);
+        dispatch('change', option.id);
     }
 
     onMount(() => {

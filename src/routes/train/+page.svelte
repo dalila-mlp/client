@@ -20,6 +20,13 @@
         filename: string;
     }
 
+    interface Parameter {
+        name: string;
+        type: string;
+        default: any;
+        constraint: string;
+    }
+
     let models: Model[] = [];
     let modelsOptions: Option[] = [];
     let models_loaded: boolean = false;
@@ -30,6 +37,8 @@
     let datafiles_loaded: boolean = false;
     let selectedDatafile: string = "";
 
+    let parameters: Parameter[] = [];
+
     let trainingFinished: boolean = false;
     let trainingStarted: boolean = false;
 
@@ -37,11 +46,11 @@
         try {
             const response = await axios.get('/models');
             if(response.status !== 200) throw new Error((await response.data).message);
-            const responseDatafile = await response.data;
-            models = responseDatafile;
+            const responseData = await response.data;
+            models = responseData;
             modelsOptions = models.map(model => ({ id: model.id, filename: model.filename }));
         } catch (error) {
-            toast(error.message, "error")
+            toast(error.message, "error");
         }
         
         models_loaded = true;
@@ -53,14 +62,27 @@
         try {
             const response = await axios.get('/datafiles');
             if(response.status !== 200) throw new Error((await response.data).message);
-            const responseDatafile = await response.data;
-            datafiles = responseDatafile;
+            const responseData = await response.data;
+            datafiles = responseData;
         } catch (error) {
             toast(error.message, 'error');
         }
 
         datafiles_loaded = true;
     });
+
+    const handleParameters = async (event) => {
+        const model_id = event.detail;
+        try {
+            const response = await axios.get(`/model/${model_id}/parameters`);
+            if (response.status !== 200) throw new Error((await response.data).message);
+            const responseData = await response.data;
+            parameters = responseData;
+            console.log(parameters);
+        } catch (error) {
+            toast(error.message, 'error');
+        }
+    }
 
     onDestroy(() => selectedModel.set(null));
 
@@ -126,6 +148,7 @@
                 <SelectModel
                     bind:value={selectedModelValue}
                     bind:specificValue={displaySelectedModelValue}
+                    on:change={handleParameters}
                     options={modelsOptions}
                     typeOption="model"
                 />
