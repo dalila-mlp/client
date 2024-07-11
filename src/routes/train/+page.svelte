@@ -56,7 +56,11 @@
         
         models_loaded = true;
         displaySelectedModelValue = get(selectedModel);
-        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0].id;
+        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0]?.id;
+
+        if (selectedModelValue) {
+            fetchParameters(selectedModelValue);
+        }
     });
 
     onMount(async () => {
@@ -72,21 +76,24 @@
         datafiles_loaded = true;
     });
 
-    const handleParameters = async (event) => {
-        const model_id = event.detail;
+    const fetchParameters = async (model_id: string) => {
         try {
             const response = await axios.get(`/model/${model_id}/parameters`);
             if (response.status !== 200) throw new Error((await response.data).message);
             const responseData = await response.data;
+
             parameters = responseData;
             parameterValues = {};
             parameters.forEach(param => {
                 parameterValues[param.name] = param.default;
             });
-            console.log(parameters);
         } catch (error) {
             toast(error.message, 'error');
         }
+    }
+
+    const handleParameters = async event => {
+        fetchParameters(event?.detail);
     }
 
     onDestroy(() => selectedModel.set(null));

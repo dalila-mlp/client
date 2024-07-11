@@ -193,7 +193,7 @@
                     <div><b>Updated at:</b> {model.updatedAt}</div>
                     <div><b>Weight:</b> {model.weight}  {model.weightUnitSize}</div>
                     <div><b>Last train:</b> {model.lastTrain ?? "Never been trained"}</div>
-                    <div><b>Deployed:</b> {model.deployed ? ((transactions && transactions !== undefined) ? transactions.find(e => e.deployed === true).id : "Yes") : "Not yet"}</div>
+                    <div><b>Deployed:</b> {model.deployed ? ((transactions && transactions !== undefined) ? transactions.find(e => e.deployed === true)?.id : "Yes") : "Not yet"}</div>
                     <div class="flex flex-col mt-6 gap-[5px]">
                         <button
                             on:click={handleTrain}

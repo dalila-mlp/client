@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getCookie } from '../../middleware/auth';
 
-const instance = axios.create({baseURL: 'http://localhost'});
+const instance = axios.create({baseURL: import.meta.env.VITE_DOMAIN_URL});
 
 instance.interceptors.request.use(
     (config) => {

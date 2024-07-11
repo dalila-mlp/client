@@ -45,7 +45,7 @@
         
         models_loaded = true;
         displaySelectedModelValue = get(selectedModel);
-        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0].id;
+        selectedModelValue = modelsOptions.filter((option) => option.filename === displaySelectedModelValue)[0]?.id;
     });
 
     onMount(async () => {

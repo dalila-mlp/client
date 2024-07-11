@@ -7,18 +7,22 @@
 
     interface Model {
         id: string;
-        filename: string;
-        name: string;
-        type: string;
-        status: string;
         createdAt: string;
         updatedAt: string;
-        uploadedBy: string;
-        weight: number;
+        status: string;
         weightUnitSize: string;
         flops: number;
         lastTrain: string;
         deployed: boolean;
+        sha: string;
+        owner: any;
+        filename: string;
+        name: string;
+        type: string;
+        weight: number;
+        transactions: any;
+        metrics: any;
+        plots: any;
     }
 
     let models: Model[] = [];
@@ -108,7 +112,14 @@
                 {#if models.length && models_loaded}
                     <div class="relative flex flex-col gap-[13px] mt-[21px] max-h-[calc(75vh-6rem)] overflow-auto pr-[21px]">
                         {#each models as model (model.id)}
-                            <UploadedItem {...model} eye={true} on:remove={() => removeModel(model.id)} />
+                            <UploadedItem
+                                eye={true}
+                                id={model.id}
+                                filename={model.filename}
+                                weight={model.weight}
+                                weightUnitSize={model.weightUnitSize}
+                                on:remove={() => removeModel(model.id)}
+                            />
                         {/each}
                     </div>
                 {:else if !models_loaded}
@@ -129,7 +140,14 @@
                 {#if datafiles.length && datafiles_loaded}
                     <div class="relative flex flex-col gap-[13px] mt-[21px] max-h-[calc(75vh-6rem)] overflow-auto pr-[21px]">
                         {#each datafiles as datafile (datafile.id)}
-                            <UploadedItem {...datafile} eye={false} on:remove={() => removeDatafile(datafile.id)} />
+                            <UploadedItem
+                                eye={false}
+                                id={datafile.id}
+                                filename={datafile.filename}
+                                weight={datafile.weight}
+                                weightUnitSize={datafile.weightUnitSize}
+                                on:remove={() => removeDatafile(datafile.id)}
+                            />
                         {/each}
                     </div>
                 {:else if !datafiles_loaded}
