@@ -6,6 +6,7 @@
     import axios from "../../../utils/Axios/axios";
     import toast from "../../../utils/Toast/default";
     import Carousel from 'svelte-carousel';
+    import Lightbox from '../../../components/Lightbox.svelte';
 
     /** @type {import('./$types').PageData} */
     export let data;
@@ -55,9 +56,11 @@
     let activeTransaction: Transaction | null | undefined = null;
     let transactions: Transaction[] = [];
     let transactions_loaded: boolean = false;
+    let showLightbox: boolean = false;
+    let currentImage: string | null = null;
 
     onMount(async () => {
-		model_loaded = false;
+        model_loaded = false;
 
         try {
             const response = await axios.get(`/model/${id}`);
@@ -67,12 +70,12 @@
         } catch (error) {
             toast(error.message, "error")
         } finally {
-			model_loaded = true;
-		}
+            model_loaded = true;
+        }
     });
 
     const fetchMetrics = async () => {
-		metrics_loaded = false;
+        metrics_loaded = false;
 
         try {
             const response = await axios.get(`/model/${activeTransaction.id}/metrics`);
@@ -82,12 +85,12 @@
         } catch (error) {
             toast(error.message, "error")
         } finally {
-			metrics_loaded = true;
-		}
+            metrics_loaded = true;
+        }
     }
 
     const fetchPlots = async () => {
-		plots_loaded = false;
+        plots_loaded = false;
 
         try {
             const response = await axios.get(`/model/${activeTransaction.id}/plots`);
@@ -97,8 +100,8 @@
         } catch (error) {
             toast(error.message, "error")
         } finally {
-			plots_loaded = true;
-		}
+            plots_loaded = true;
+        }
     }
 
     onMount(async () => {
@@ -133,6 +136,11 @@
     const handleTrain = () => model ? (selectedModel.set(model?.filename) || goto('/train')) : toast('No model selected', 'error');
     const handleDeploy = () => model ? (selectedModel.set(model?.filename) || goto('/deploy')) : toast('No model selected', 'error');
     const handlePredict = () => model ? (selectedModel.set(model?.filename) || goto('/predict')) : toast('No model selected', 'error');
+
+    const openLightbox = (image: string) => {
+        currentImage = image;
+        showLightbox = true;
+    }
 </script>
 
 <svelte:head>
@@ -184,22 +192,22 @@
                     {:else}
                         <div class="text-lg font-semibold">Metrics recovering in progress...</div>
                     {/if}
-					<div class="text-xl font-semibold mb-2 mt-[13px]">Graphiques</div>
-					{#if plots_loaded}
-						{#if plots && plots.length > 0}
-							<div class="mt-4">
-								<Carousel autoplay autoplayTimeout={3000} autoplayProgressVisible pauseOnFocus>
-									{#each plots as plot}
-										<img src={plot} alt="Plot Image" class="w-full h-auto" />
-									{/each}
-								</Carousel>
-							</div>
+                    <div class="text-xl font-semibold mb-2 mt-[13px]">Graphiques</div>
+                    {#if plots_loaded}
+                        {#if plots && plots.length > 0}
+                            <div class="mt-4">
+                                <Carousel autoplay autoplayTimeout={3000} autoplayProgressVisible pauseOnFocus>
+                                    {#each plots as plot, index}
+                                        <img src={plot} alt="Plot Image" class="w-full h-auto cursor-pointer" on:click={() => openLightbox(plot)} />
+                                    {/each}
+                                </Carousel>
+                            </div>
                         {:else}
                             <div class="text-lg font-semibold">No charts could be recovered!</div>
                         {/if}
-					{:else}
-						<div class="text-lg font-semibold">Charts recovering in progress...</div>
-					{/if}
+                    {:else}
+                        <div class="text-lg font-semibold">Charts recovering in progress...</div>
+                    {/if}
                 </div>
                 <div class="flex flex-col gap-[5px]">
                     <div class="text-xl font-semibold mb-2">Transactions</div>
@@ -231,4 +239,8 @@
             <div class="text-3xl font-bold">Fetching model in progress...</div>
         {/if}
     </div>
+
+    {#if showLightbox}
+        <Lightbox imageUrl={currentImage} show={showLightbox} onClose={() => showLightbox = false} />
+    {/if}
 </div>
